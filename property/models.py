@@ -24,8 +24,8 @@ class Property(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
-#     def image_url(self):
-#         return f"{settings.WEBSITE_URL}{self.image.url}"
+    def image_url(self):
+        return f"{settings.WEBSITE_URL}{self.image.url}"
 
 
 # class Reservation(models.Model):
