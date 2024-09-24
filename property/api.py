@@ -10,18 +10,38 @@ from rest_framework.decorators import (
 from .models import Property , Reservation
 from .serializers import PropertiesListSerializer
 from useraccount.models import User
+from rest_framework_simplejwt.tokens import AccessToken
 
 
 @api_view(['GET'])
 @authentication_classes([])
 @permission_classes([])
 def properties_list(request):
+
+    try:
+        token = request.META["HTTP_AUTHORIZATION"].split("Bearer ")[1]
+        token = AccessToken(token)
+        user_id = token.payload["user_id"]
+        user = User.objects.get(pk=user_id)
+    except Exception as e:
+        user = None
+
+    favorites = []
     properties = Property.objects.all()
     landlord_id = request.GET.get("landlord_id", "")
+    is_favorites = request.GET.get("is_favorites","")
     if landlord_id:
         properties = properties.filter(landlord_id=landlord_id)
+
+    if is_favorites:
+        properties = properties.filter(favorited__in=[user])
+
+    if user:
+        for property in properties:
+            if user in property.favorited.all():
+                favorites.append(property.id)
     serializer = PropertiesListSerializer(properties, many=True)
-    return JsonResponse({"data": serializer.data})
+    return JsonResponse({"data": serializer.data, "favorites": favorites})
 
 
 @api_view(["GET"])
