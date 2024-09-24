@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from .api import PropertyForm
+from .forms import PropertyForm
 
 from rest_framework.decorators import (
     api_view,
