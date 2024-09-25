@@ -34,6 +34,16 @@ class Property(models.Model):
     def __str__(self):
         return self.title 
 
+class PropertyImages(models.Model):
+    property = models.ForeignKey(Property,related_name="property_images", on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="uploads/properties/property images")
+
+    class Meta:
+        verbose_name = "Property Images"
+        verbose_name_plural = "Property Images"
+
+    def __str__(self):
+        return str(self.property)
 
 class Reservation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -52,4 +62,3 @@ class Reservation(models.Model):
 
     def __str__(self):
         return str(self.property)
-    

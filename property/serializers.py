@@ -1,18 +1,19 @@
 from rest_framework import serializers
 
-from .models import Property , Reservation
+from .models import Property , Reservation , PropertyImages
 from useraccount.serializers import UserDetailSerializer
 
 
+class PropertyImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= PropertyImages
+        fields = ["image"]
+
 class PropertiesListSerializer(serializers.ModelSerializer):
+    property_images = PropertyImagesSerializer(many=True, read_only=True)
     class Meta:
         model = Property
-        fields = (
-            "id",
-            "title",
-            "price_per_night",
-            "image_url",
-        )
+        fields = ("id", "title", "price_per_night", "image_url", "property_images")
 
 
 class PropertiesDetailSerializer(serializers.ModelSerializer):
