@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from .forms import PropertyForm
+from .forms import PropertyForm , PropertyImages
 from .serializers import PropertiesDetailSerializer , ReservationsListSerializer
 
 from rest_framework.decorators import (
@@ -67,19 +67,26 @@ def property_reservations(request, pk):
     return JsonResponse(serializer.data, safe=False)
 
 
-@api_view(["POST", "FILES"])
+@api_view(["POST"])
 def create_property(request):
-    form = PropertyForm(request.POST, request.FILES)
+    property_form = PropertyForm(request.POST, request.FILES)
 
-    if form.is_valid():
-        property = form.save(commit=False)
-        property.landlord = request.user
-        property.save()
+    if property_form.is_valid():
+        property_instance = property_form.save(commit=False)
+        property_instance.landlord = request.user
+        property_instance.save()
+
+        # Handle multiple images
+        images = request.FILES.getlist("property_images")
+        for image in images:
+            property_image = PropertyImages(property=property_instance, image=image)
+            property_image.save()
 
         return JsonResponse({"success": True})
+
     else:
-        print("error", form.errors, form.non_field_errors)
-        return JsonResponse({"errors": form.errors.as_json()}, status=400)
+        print("error", property_form.errors, property_form.non_field_errors)
+        return JsonResponse({"errors": property_form.errors.as_json()}, status=400)
 
 
 @api_view(["POST"])

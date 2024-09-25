@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 
-from .models import Property
+from .models import Property , PropertyImages
+from django import forms
 
 
 class PropertyForm(ModelForm):
@@ -18,3 +19,9 @@ class PropertyForm(ModelForm):
             "category",
             "image",
         )
+
+
+class PropertyImagesForm(forms.ModelForm):
+    class Meta:
+        model = PropertyImages
+        fields = ("image",)
