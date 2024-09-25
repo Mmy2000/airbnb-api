@@ -38,6 +38,9 @@ class PropertyImages(models.Model):
     property = models.ForeignKey(Property,related_name="property_images", on_delete=models.CASCADE)
     image = models.ImageField(upload_to="uploads/properties/property images")
 
+    def image_url(self):
+        return f"{settings.WEBSITE_URL}{self.image.url}"
+
     class Meta:
         verbose_name = "Property Images"
         verbose_name_plural = "Property Images"

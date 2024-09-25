@@ -7,7 +7,7 @@ from useraccount.serializers import UserDetailSerializer
 class PropertyImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model= PropertyImages
-        fields = ["image"]
+        fields = ["image_url"]
 
 class PropertiesListSerializer(serializers.ModelSerializer):
     property_images = PropertyImagesSerializer(many=True, read_only=True)
@@ -18,6 +18,7 @@ class PropertiesListSerializer(serializers.ModelSerializer):
 
 class PropertiesDetailSerializer(serializers.ModelSerializer):
     landlord = UserDetailSerializer(read_only=True, many=False)
+    property_images = PropertyImagesSerializer(many=True, read_only=True)
     class Meta:
         model = Property
         fields = (
@@ -30,6 +31,7 @@ class PropertiesDetailSerializer(serializers.ModelSerializer):
             "bathrooms",
             "guests",
             "landlord",
+            "property_images",
         )
 
 
