@@ -60,6 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255, blank=True, null=True)
     address = models.CharField(max_length=50, blank=True, null=True)
     image = models.ImageField(upload_to="users_images/", blank=True, null=True)
     about = models.TextField(max_length=4000, blank=True, null=True)

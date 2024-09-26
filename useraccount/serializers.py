@@ -11,11 +11,12 @@ class UserDetailSerializerSample(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserDetailSerializerSample()
+    user = UserDetailSerializerSample(read_only=True)
     class Meta:
         model = Profile
         fields = [
             "address",
+            "name",
             "image",
             "about",
             "country",
