@@ -12,4 +12,6 @@ urlpatterns = [
     path("token/refresh/", get_refresh_view().as_view(), name="token_refresh"),
     path("myreservations/", api.reservations_list, name="api_reservations_list"),
     path("<uuid:pk>/", api.landlord_detail, name="api_landlrod_detail"),
+    path("profile/", api.ProfileDetailView.as_view(), name="profile-detail"),
+    path("profile/edit/", api.ProfileUpdateView.as_view(), name="profile-edit"),
 ]
