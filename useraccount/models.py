@@ -70,8 +70,9 @@ class Profile(models.Model):
     city = models.CharField(max_length=50, blank=True, null=True)
 
     def full_name(self):
-        return f"{self.user.first_name} {self.user.last_name}"
+        return self.user.name
 
+    @property
     def full_address(self):
         return f"{self.country} | {self.city} | {self.address_line_1}"
 
