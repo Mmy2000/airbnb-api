@@ -60,10 +60,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def name(self):
+        # Avoid recursion by directly accessing the model field from __dict__
         return (
             self.profile.name
             if hasattr(self, "profile") and self.profile.name
-            else self.name
+            else self.__dict__.get("name")
         )
 
 
