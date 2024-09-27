@@ -52,10 +52,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
 
     def avatar_url(self):
-        if self.avatar:
+        if hasattr(self, "profile") and self.profile.image:
+            return f"{settings.WEBSITE_URL}{self.profile.image.url}"
+        elif self.avatar:
             return f"{settings.WEBSITE_URL}{self.avatar.url}"
-        else:
-            return ""
+        return ""
+
+    @property
+    def name(self):
+        return (
+            self.profile.name
+            if hasattr(self, "profile") and self.profile.name
+            else self.name
+        )
 
 
 class Profile(models.Model):
