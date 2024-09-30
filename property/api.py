@@ -214,6 +214,36 @@ def book_property(request, pk):
         return JsonResponse({"success": False})
 
 
+@api_view(["DELETE"])
+def cancel_reservation(request, pk):
+    try:
+        # Fetch the reservation based on the provided primary key (pk)
+        reservation = Reservation.objects.get(pk=pk)
+
+        # Optionally, you can check if the reservation was created by the current user
+        if reservation.created_by != request.user:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "You do not have permission to cancel this reservation.",
+                },
+                status=403,
+            )
+
+        # Delete the reservation
+        reservation.delete()
+
+        return JsonResponse({"success": True})
+
+    except Reservation.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "error": "Reservation not found."}, status=404
+        )
+    except Exception as e:
+        print("Error:", e)
+        return JsonResponse({"success": False, "error": str(e)})
+
+
 @api_view(["POST"])
 def toggle_favorite(request, pk):
     property = Property.objects.get(pk=pk)
