@@ -126,6 +126,66 @@ def create_property(request):
         return JsonResponse({"errors": property_form.errors.as_json()}, status=400)
 
 
+@api_view(["PUT"])
+def edit_property(request, property_id):
+    try:
+        # Get the property instance
+        property_instance = Property.objects.get(id=property_id, landlord=request.user)
+
+        # Update property details
+        property_form = PropertyForm(
+            request.POST, request.FILES, instance=property_instance
+        )
+
+        if property_form.is_valid():
+            property_form.save()
+
+            # Handle new images if provided
+            if "property_images" in request.FILES:
+                # Clear previous images if needed (optional)
+                PropertyImages.objects.filter(property=property_instance).delete()
+
+                images = request.FILES.getlist("property_images")
+                for image in images:
+                    property_image = PropertyImages(
+                        property=property_instance, image=image
+                    )
+                    property_image.save()
+
+            return JsonResponse(
+                {"success": True, "message": "Property updated successfully"}
+            )
+        else:
+            return JsonResponse({"errors": property_form.errors.as_json()}, status=400)
+    except Property.DoesNotExist:
+        return JsonResponse(
+            {"error": "Property not found or you are not authorized to edit it"},
+            status=404,
+        )
+
+
+@api_view(["DELETE"])
+def delete_property(request, property_id):
+    try:
+        # Get the property instance
+        property_instance = Property.objects.get(id=property_id, landlord=request.user)
+
+        # Delete associated property images
+        property_instance.property_images.all().delete()
+
+        # Delete the property itself
+        property_instance.delete()
+
+        return JsonResponse(
+            {"success": True, "message": "Property deleted successfully"}
+        )
+    except Property.DoesNotExist:
+        return JsonResponse(
+            {"error": "Property not found or you are not authorized to delete it"},
+            status=404,
+        )
+
+
 @api_view(["POST"])
 def book_property(request, pk):
     try:
