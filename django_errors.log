@@ -1,0 +1,24 @@
+Amadeus API error: [400]
+
+Internal Server Error: /api/properties/search_flights/
+Internal Server Error: /api/properties/search_flights/
+HTTP GET /api/properties/search_flights/?origin=JFK&destination=LHR&departure_date=2023-12-15&adults=2 500 [1.44, 172.18.0.1:48170]
+HTTP GET /api/properties/search_flights/?origin=JFK&destination=LHR&departure_date=2023-12-15&adults=2 500 [1.44, 172.18.0.1:48170]
+Amadeus API error: [400]
+
+Internal Server Error: /api/properties/search_flights/
+Internal Server Error: /api/properties/search_flights/
+HTTP GET /api/properties/search_flights/?origin=JFK&destination=LHR&departure_date=2023-12-15&adults=2 500 [1.25, 172.18.0.1:46200]
+HTTP GET /api/properties/search_flights/?origin=JFK&destination=LHR&departure_date=2023-12-15&adults=2 500 [1.25, 172.18.0.1:46200]
+Amadeus API error: [400]
+
+Internal Server Error: /api/properties/search_flights/
+Internal Server Error: /api/properties/search_flights/
+HTTP GET /api/properties/search_flights/?origin=JFK&destination=LHR&departure_date=2023-12-15&adults=2 500 [0.99, 172.18.0.1:46200]
+HTTP GET /api/properties/search_flights/?origin=JFK&destination=LHR&departure_date=2023-12-15&adults=2 500 [0.99, 172.18.0.1:46200]
+Amadeus API error: [400]
+
+Internal Server Error: /api/properties/search_flights/
+Internal Server Error: /api/properties/search_flights/
+HTTP GET /api/properties/search_flights/?origin=JFK&destination=LHR&departure_date=2023-12-15&adults=2 500 [1.29, 172.18.0.1:57600]
+HTTP GET /api/properties/search_flights/?origin=JFK&destination=LHR&departure_date=2023-12-15&adults=2 500 [1.29, 172.18.0.1:57600]

@@ -1,6 +1,14 @@
+from amadeus import NotFoundError
 from django.http import JsonResponse
 from .forms import PropertyForm , PropertyImages
 from .serializers import PropertiesDetailSerializer , ReservationsListSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .amadeus_client import get_amadeus_client
+from amadeus import Client, ResponseError
+import datetime
+from django.conf import settings
 
 from rest_framework.decorators import (
     api_view,
@@ -11,6 +19,12 @@ from .models import Property , Reservation
 from .serializers import PropertiesListSerializer
 from useraccount.models import User
 from rest_framework_simplejwt.tokens import AccessToken
+import logging
+from django.views.decorators.http import require_GET
+import requests
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
@@ -31,6 +45,7 @@ def properties_list(request):
     landlord_id = request.GET.get("landlord_id", "")
     is_favorites = request.GET.get("is_favorites","")
     country = request.GET.get("country", "")
+    city = request.GET.get("city", "")
     category = request.GET.get("category", "")
     checkin_date = request.GET.get("checkIn", "")
     checkout_date = request.GET.get("checkOut", "")
@@ -69,6 +84,9 @@ def properties_list(request):
 
     if country:
         properties = properties.filter(country=country)
+
+    if city:
+        properties = properties.filter(city=city)
 
     if category and category != "undefined":
         properties = properties.filter(category=category)
@@ -119,7 +137,7 @@ def create_property(request):
             property_image = PropertyImages(property=property_instance, image=image)
             property_image.save()
 
-        return JsonResponse({"success": True})
+        return JsonResponse({"success": True},status=200)
 
     else:
         print("error", property_form.errors, property_form.non_field_errors)
@@ -256,3 +274,143 @@ def toggle_favorite(request, pk):
         property.favorited.add(request.user)
 
         return JsonResponse({"is_favorite": True})
+
+
+amadeus = Client(
+    client_id=settings.AMADEUS_CLIENT_ID, client_secret=settings.AMADEUS_CLIENT_SECRET
+)
+
+
+def search_flights(request):
+    # Get parameters from the request
+    origin = request.GET.get("origin")
+    destination = request.GET.get("destination")
+    departure_date = request.GET.get("departure_date")
+    adults = request.GET.get("adults", 1)  # default to 1 adult if not specified
+    print(amadeus.client_id,amadeus.client_secret)
+
+    # Validate required parameters
+    if not origin or not destination or not departure_date:
+        return JsonResponse(
+            {
+                "error": "Please provide origin, destination, and departure_date parameters."
+            },
+            status=400,
+        )
+
+    try:
+        # Call Amadeus API with the provided parameters
+        response = amadeus.shopping.flight_offers_search.get(
+            originLocationCode=origin,
+            destinationLocationCode=destination,
+            departureDate=departure_date,
+            adults=int(adults),
+        ).data
+        return JsonResponse(response, safe=False)
+    except ResponseError as error:
+        return JsonResponse({"error": str(error)}, status=500)
+
+
+# @require_GET  # Ensure the endpoint only responds to GET requests
+# def hotel_search(request):
+#     # Get parameters from the request
+#     city_code = request.GET.get("city_code")
+#     check_in_date = request.GET.get("check_in_date")
+#     check_out_date = request.GET.get("check_out_date")
+#     adults = request.GET.get("adults", 1)  # Default to 1 adult if not specified
+
+#     # Validate required parameters
+
+#     # if not city_code or not check_in_date or not check_out_date:
+#     #     return JsonResponse(
+#     #         {
+#     #             "error": "Please provide city_code, check_in_date, and check_out_date parameters."
+#     #         },
+#     #         status=400,
+#     #     )
+
+#     try:
+#         # Call Amadeus API with the provided parameters
+#         print("before response")
+#         response = amadeus.shopping.hotel_offers.get(
+#             hotelIds="RTPAR001",
+#             cityCode=city_code,
+#             checkInDate=check_in_date,
+#             checkOutDate=check_out_date,
+#             adults=int(adults),
+#         ).data
+#         print("after response")
+
+#         # Return the response as JSON
+#         return JsonResponse(response, safe=False)
+#     except ResponseError as error:
+#         logger.error(f"Amadeus API error: {error}")
+#         return JsonResponse(
+#             {
+#                 "error": "An error occurred with the Amadeus API. Check your parameters and try again."
+#             },
+#             status=500,
+#         )
+#     except Exception as e:
+#         logger.error(f"Unexpected error: {e}")
+#         return JsonResponse(
+#             {"error": "An unexpected error occurred. Please try again later."},
+#             status=500,
+#         )
+
+
+def hotel_search(request):
+    # Get parameters from the request
+    city_code = request.GET.get("city_code")
+    check_in_date = request.GET.get("check_in_date")
+    check_out_date = request.GET.get("check_out_date")
+    adults = request.GET.get("adults", 1)  # Default to 1 adult if not specified
+    room_quantity = request.GET.get("room_quantity", 1)  # Default to 1 room
+    payment_policy = request.GET.get("payment_policy", "NONE")  # Default payment policy
+    best_rate_only = request.GET.get("best_rate_only", "true")  # Default to true
+
+    # Validate required parameters
+    if not city_code or not check_in_date or not check_out_date:
+        return JsonResponse(
+            {
+                "error": "Please provide city_code, check_in_date, and check_out_date parameters."
+            },
+            status=400,
+        )
+
+    try:
+        # Construct the API URL
+        api_url = (
+            f"https://test.api.amadeus.com/v3/shopping/hotel-offers?"
+            f"hotelIds=RTPAR001&adults={adults}&checkInDate={check_in_date}"
+            f"&checkOutDate={check_out_date}&roomQuantity={room_quantity}"
+            f"&paymentPolicy={payment_policy}&bestRateOnly={best_rate_only}"
+        )
+
+        # Make the request to the Amadeus API
+        response = requests.get(
+            api_url, headers={"Authorization": f"Bearer jYPNASmwnh4LYkKKdAfsqoxAal0g"}
+        )
+        response_data = response.json()  # Parse JSON response
+
+        # Check if the response is successful
+        if response.status_code == 200:
+            # Return the response as JSON
+            return JsonResponse(response_data, safe=False)
+        else:
+            # Handle API error response
+            logger.error(f"Amadeus API error: {response_data}")
+            return JsonResponse(
+                {
+                    "error": "An error occurred with the Amadeus API. Check your parameters and try again."
+                },
+                status=response.status_code,
+            )
+
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return JsonResponse(
+            {"error": "An unexpected error occurred. Please try again later."},
+            status=500,
+        )
+

@@ -1,7 +1,9 @@
 from datetime import timedelta
 import os
-
+import environ
 from pathlib import Path
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -78,6 +80,7 @@ INSTALLED_APPS = [
     "useraccount",
     "property",
     "chats",
+    "django_summernote",
 ]
 
 MIDDLEWARE = [
@@ -174,3 +177,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# AMADEUS_CLIENT_ID = "riODWgXXVJ4jAt8rQIsz9Hk3DOHpQf9g"
+# AMADEUS_CLIENT_SECRET = "M8x3ZvywQ8RhPwpc"
+
+AMADEUS_CLIENT_ID = env("AMADEUS_CLIENT_ID")
+AMADEUS_CLIENT_SECRET = env("AMADEUS_CLIENT_SECRET")

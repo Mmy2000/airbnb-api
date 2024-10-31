@@ -13,7 +13,15 @@ class PropertiesListSerializer(serializers.ModelSerializer):
     property_images = PropertyImagesSerializer(many=True, read_only=True)
     class Meta:
         model = Property
-        fields = ("id", "title", "price_per_night", "image_url", "property_images")
+        fields = (
+            "id",
+            "title",
+            "price_per_night",
+            "image_url",
+            "property_images",
+            "country",
+            "city"
+        )
 
 
 class PropertiesDetailSerializer(serializers.ModelSerializer):
@@ -34,7 +42,8 @@ class PropertiesDetailSerializer(serializers.ModelSerializer):
             "property_images",
             "category",
             "country",
-            "country_code"
+            "city",
+            "country_code",
         )
 
 

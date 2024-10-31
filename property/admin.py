@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Property, Reservation, PropertyImages
+from django_summernote.admin import SummernoteModelAdmin
 
 
 class PropertyImagesInline(admin.TabularInline):
@@ -8,22 +9,24 @@ class PropertyImagesInline(admin.TabularInline):
 
 
 @admin.register(Property)
-class PropertyAdmin(admin.ModelAdmin):
+class PropertyAdmin(SummernoteModelAdmin):  # Extending from SummernoteModelAdmin
     list_display = (
         "title",
         "price_per_night",
         "country",
+        "city",
         "category",
         "landlord",
         "created_at",
     )
-    list_filter = ("country", "category", "landlord")
-    search_fields = ("title", "description", "country", "category")
+    list_filter = ("country","city", "category", "landlord")
+    search_fields = ("title", "description", "country", "city", "category")
     inlines = [
         PropertyImagesInline
     ]  # Display property images inline on the property admin page
     ordering = ("-created_at",)
     list_per_page = 20  # Limit the number of items displayed per page
+    summernote_fields = ("description",)  # Apply Summernote to the description field
 
 
 @admin.register(Reservation)
