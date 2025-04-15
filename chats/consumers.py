@@ -14,13 +14,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+        if self.scope["user"].is_authenticated:
+            self.user_group_name = f"user_{self.scope['user'].id}"
+            await self.channel_layer.group_add(
+                self.user_group_name,
+                self.channel_name
+            )
+
         await self.accept()
+
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
+        if hasattr(self, 'user_group_name'):
+            await self.channel_layer.group_discard(
+                self.user_group_name,
+                self.channel_name
+            )
+
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -42,6 +56,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
             await self.save_message(conversation_id, body, sent_to_id)
+
+            await self.channel_layer.group_send(
+                f"user_{sent_to_id}",
+                {
+                    'type': 'new_message_notification',
+                    'message': f"New message from {name}",
+                    'from_user': name
+                }
+            )
 
         elif event_type == "typing":
             name = data['data']['name']
@@ -65,6 +88,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'event': 'typing',
             'name': event['name']
         }))
+    
+    async def new_message_notification(self, event):
+        await self.send(text_data=json.dumps({
+            'event': 'new_message_notification',
+            'message': event['message'],
+            'from_user': event['from_user']
+        }))
+
 
     @sync_to_async
     def save_message(self, conversation_id, body, sent_to_id):
