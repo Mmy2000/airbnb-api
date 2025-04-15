@@ -15,6 +15,7 @@ class PropertyForm(ModelForm):
             "bathrooms",
             "guests",
             "country",
+            "city",
             "country_code",
             "category",
             "image",

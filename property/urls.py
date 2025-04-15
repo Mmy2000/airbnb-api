@@ -20,5 +20,6 @@ urlpatterns = [
     # amadues
     # path("search-hotels/", api.search_two, name="hotel_search"),
     path("search-hotels/", api.hotel_search, name="hotel_search"),
+    # path("search-hotel/", api.hotel_search_, name="hotel_search"),
     path("search_flights/", api.search_flights, name="search_flights"),
 ]
